@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Informatika Kelas 9 - MTs Ma'arif NU 1 Wangon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-magenta: #ff00ff;
+            --dark-space: #0b0914;
+            --glass-bg: rgba(20, 15, 35, 0.7);
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: radial-gradient(circle at 10% 10%, rgba(138, 43, 226, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 90%, rgba(0, 243, 255, 0.1) 0%, transparent 40%),
+                        linear-gradient(135deg, var(--dark-space) 0%, #171228 50%, #07050f 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3, input, button, .orbitron-text, .font-mono {
+            font-family: 'Times New Roman', Times, serif !important;
+        }
+
+        .btn-game {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.6), 0 15px 25px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-game:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .option-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.5);
+            border: 2px solid rgba(138, 43, 226, 0.4);
+            background: linear-gradient(135deg, rgba(25, 20, 45, 0.8) 0%, rgba(15, 10, 30, 0.9) 100%);
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #a855f7;
+            background: linear-gradient(135deg, rgba(45, 30, 75, 0.9) 0%, rgba(25, 15, 45, 0.9) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 rgba(0,0,0,0.6), 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        .option-btn:hover:not(:disabled)::before { left: 150%; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+
+        .option-glow-a {
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%) !important;
+            border-color: var(--neon-cyan) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.6), 0 6px 0 #023e8a !important;
+            transform: scale(1.03);
+            z-index: 10;
+        }
+        .option-glow-a .option-letter {
+            background: #ffffff !important;
+            color: #0077b6 !important;
+            box-shadow: 0 0 15px rgba(0,255,255,0.8);
+        }
+
+        .option-glow-b {
+            background: linear-gradient(135deg, #d90429 0%, #9d0208 100%) !important;
+            border-color: var(--neon-magenta) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 6px 0 #6a040f !important;
+            transform: scale(1.03);
+            z-index: 10;
+        }
+        .option-glow-b .option-letter {
+            background: #ffffff !important;
+            color: #d90429 !important;
+            box-shadow: 0 0 15px rgba(255,0,255,0.8);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px) rotate(-2deg); }
+            40%, 80% { transform: translateX(12px) rotate(2deg); }
+        }
+        .wrong-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%) !important;
+            border-color: #f87171 !important;
+            color: white !important;
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.9) !important;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1.05); }
+        }
+        .correct-pop {
+            animation: popIn 0.4s ease forwards;
+            background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
+            border-color: #34d399 !important;
+            color: white !important;
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.9) !important;
+        }
+
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: #ffffff;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            margin-right: 18px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .turn-indicator-active {
+            transform: translateY(-6px) scale(1.03);
+            z-index: 20;
+            filter: brightness(1.2);
+        }
+
+        .turn-indicator-inactive {
+            opacity: 0.3;
+            transform: scale(0.95);
+            filter: grayscale(80%) blur(1px);
+        }
+        
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 9999;
+            position: absolute;
+            pointer-events: none;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            animation: scanline 8s linear infinite;
+        }
+        @keyframes scanline {
+            0% { top: -100px; }
+            100% { top: 100%; }
+        }
+
+        .question-img {
+            max-height: 200px;
+            width: auto;
+            border-radius: 12px;
+            border: 2px solid rgba(168, 85, 247, 0.5);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            margin-top: 15px;
+            object-fit: contain;
+            background: rgba(0,0,0,0.3);
+            padding: 5px;
+        }
+
+        .option-img {
+            max-height: 100px;
+            width: auto;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            object-fit: contain;
+            background: rgba(0,0,0,0.4);
+            padding: 4px;
+        }
+
+        .timer-warning {
+            animation: pulse-red 1s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8)); }
+            50% { filter: drop-shadow(0 0 25px rgba(239, 68, 68, 1)); }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen relative">
+    <div class="scanline"></div>
+
+    <!-- SCREEN 0: INTRO -->
+    <div id="screen-intro" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#0b0914]/95 backdrop-blur-2xl">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-fuchsia-600/20 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/20 rounded-full blur-[120px]"></div>
+            <div class="absolute top-[40%] left-[50%] w-[20%] h-[20%] bg-purple-600/20 rounded-full blur-[80px]"></div>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center max-w-3xl text-center">
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-400/40 text-indigo-300 text-xs md:text-sm font-bold tracking-widest uppercase mb-8 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping"></span>
+                MTs Ma'arif NU 1 Wangon • Kelas 9
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-purple-500 drop-shadow-[0_0_20px_rgba(217,70,239,0.3)]">
+                INFORMATIKA
+            </h1>
+            <h2 class="orbitron-text text-xl md:text-3xl font-bold text-slate-300 mb-10 tracking-[0.2em]">
+                SELAMAT MENGERJAKAN
+            </h2>
+
+            <button onclick="initApp()" class="btn-game bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-12 py-5 rounded-2xl text-xl md:text-2xl font-black shadow-[0_0_40px_rgba(0,243,255,0.4)] animate-pulse relative overflow-hidden group">
+                <span class="relative z-10">MULAI MENGERJAKAN</span>
+                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 1: START MENU -->
+    <div id="screen-start" class="hidden flex-1 flex flex-col items-center justify-center p-4 relative z-10">
+        <div class="bg-gray-900/80 p-8 md:p-12 rounded-3xl border border-indigo-500/30 text-center max-w-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl relative overflow-hidden w-full">
+            
+            <div class="inline-block px-4 py-1.5 rounded-md bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold uppercase tracking-widest mb-4">
+                Konfigurasi Pemain
+            </div>
+            <h2 class="orbitron-text text-3xl md:text-4xl font-black text-white mb-3 tracking-wide drop-shadow-md">ARENA DUEL 1 VS 1</h2>
+            <p class="mb-4 text-slate-400 text-sm md:text-base font-medium">Paket A (20 Soal) vs Paket B (20 Soal) - Diacak.</p>
+            <p class="mb-8 text-cyan-400 text-xs md:text-sm font-bold bg-cyan-900/30 py-2 px-4 rounded-lg border border-cyan-800">
+                Waktu 60 detik / Soal. <br> Setiap jawaban benar bernilai 5 Poin. Maksimal: 100 Poin.
+            </p>
+            
+            <div class="flex flex-col md:flex-row gap-5 md:gap-8 justify-center items-stretch mt-4">
+                <div class="flex-1 bg-[#0a192f] p-5 rounded-2xl border-2 border-cyan-500/50 shadow-[0_0_20px_rgba(0,243,255,0.15)] relative overflow-hidden group focus-within:border-cyan-400 transition-colors">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-cyan-400"></div>
+                    <label class="block text-cyan-400 font-black text-sm mb-3 uppercase tracking-widest">Player 1 (Cyan)</label>
+                    <input type="text" id="nameA" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 text-white font-bold text-center border border-slate-700 focus:outline-none focus:border-cyan-400 transition-all font-mono" value="Siswa A">
+                </div>
+                
+                <div class="flex items-center justify-center py-2 md:py-0">
+                    <span class="orbitron-text text-2xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-300 to-slate-600">VS</span>
+                </div>
+
+                <div class="flex-1 bg-[#2b0a1a] p-5 rounded-2xl border-2 border-pink-500/50 shadow-[0_0_20px_rgba(255,0,255,0.15)] relative overflow-hidden focus-within:border-pink-400 transition-colors">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-pink-500"></div>
+                    <label class="block text-pink-400 font-black text-sm mb-3 uppercase tracking-widest">Player 2 (Magenta)</label>
+                    <input type="text" id="nameB" class="w-full px-4 py-3 rounded-xl bg-gray-900/80 text-white font-bold text-center border border-slate-700 focus:outline-none focus:border-pink-400 transition-all font-mono" value="Siswa B">
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="btn-game mt-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-12 py-4 rounded-xl text-xl font-black w-full shadow-[0_0_30px_rgba(139,92,246,0.5)] tracking-widest">
+                ENTER ARENA
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: GAME BOARD -->
+    <div id="screen-game" class="hidden flex-1 flex flex-col p-3 md:p-6 w-full max-w-6xl mx-auto justify-between relative z-10">
+        
+        <!-- Header Skor & Giliran -->
+        <div class="flex justify-between items-center gap-2 md:gap-6 mb-4 md:mb-6">
+            <!-- P1 Indicator -->
+            <div id="indicator-a" class="bg-gray-900/80 border-4 border-cyan-400 rounded-2xl p-3 md:p-5 text-center flex-1 shadow-lg transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl"></div>
+                <div class="bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[9px] md:text-xs font-black uppercase tracking-widest rounded-md px-2 py-1 inline-block mb-1 md:mb-2">Pemain 1</div>
+                <div id="display-name-a" class="text-sm md:text-2xl font-black text-white truncate orbitron-text">Siswa A</div>
+                <div class="flex justify-between items-end mt-2 pt-2 border-t border-cyan-500/30">
+                    <div class="text-[10px] md:text-sm text-cyan-200/70 font-semibold font-mono">SOAL <span id="progress-a" class="text-cyan-400 font-bold">0</span>/20</div>
+                    <div id="score-a" class="orbitron-text text-2xl md:text-5xl font-black text-cyan-400 tracking-tighter drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">0</div>
+                </div>
+            </div>
+            
+            <!-- Turn & Timer Center Module -->
+            <div class="flex flex-col items-center justify-center gap-2 min-w-[80px] md:min-w-[120px]">
+                <div class="flex flex-col items-center justify-center px-3 py-1.5 bg-gray-900/90 rounded-xl border border-indigo-500/50 backdrop-blur-md w-full">
+                    <div class="text-indigo-400 font-extrabold text-[9px] md:text-[10px] tracking-widest uppercase">GILIRAN</div>
+                    <div id="turn-pointer" class="text-xl md:text-2xl animate-pulse text-white drop-shadow-md">👈</div>
+                </div>
+                
+                <!-- SVG Circle Timer -->
+                <div class="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                    <svg class="absolute inset-0 w-full h-full -rotate-90">
+                        <circle cx="50%" cy="50%" r="40%" fill="rgba(0,0,0,0.5)" stroke="#334155" stroke-width="6"></circle>
+                        <circle id="timer-circle" cx="50%" cy="50%" r="40%" fill="none" stroke="#ef4444" stroke-width="6" 
+                                style="stroke-dasharray: 251; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear;"></circle>
+                    </svg>
+                    <span id="time-display" class="relative z-10 text-xl md:text-2xl font-black font-mono text-white drop-shadow-[0_0_10px_red]">60</span>
+                </div>
+            </div>
+
+            <!-- P2 Indicator -->
+            <div id="indicator-b" class="bg-gray-900/80 border-4 border-pink-500 rounded-2xl p-3 md:p-5 text-center flex-1 shadow-lg transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
+                <div class="absolute -left-10 -top-10 w-24 h-24 bg-pink-500/20 rounded-full blur-2xl"></div>
+                <div class="bg-pink-500/20 border border-pink-500/50 text-pink-300 text-[9px] md:text-xs font-black uppercase tracking-widest rounded-md px-2 py-1 inline-block mb-1 md:mb-2">Pemain 2</div>
+                <div id="display-name-b" class="text-sm md:text-2xl font-black text-white truncate orbitron-text">Siswa B</div>
+                <div class="flex justify-between items-end mt-2 pt-2 border-t border-pink-500/30">
+                    <div id="score-b" class="orbitron-text text-2xl md:text-5xl font-black text-pink-500 tracking-tighter drop-shadow-[0_0_10px_rgba(255,0,255,0.5)]">0</div>
+                    <div class="text-[10px] md:text-sm text-pink-200/70 font-semibold font-mono">SOAL <span id="progress-b" class="text-pink-400 font-bold">0</span>/20</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pertanyaan Container -->
+        <div class="bg-[#130f24]/90 backdrop-blur-xl rounded-3xl p-6 md:p-10 my-auto border-2 border-purple-500/40 shadow-[0_15px_50px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center relative overflow-hidden min-h-[180px] md:min-h-[260px]">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500"></div>
+            
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-400/30 text-purple-300 text-xs font-bold uppercase tracking-widest mb-3 md:mb-5">
+                <span class="animate-pulse">⚡</span> SOAL KELAS 9
+            </div>
+            
+            <h2 id="question-text" class="text-lg md:text-2xl lg:text-3xl font-extrabold text-center text-white leading-tight drop-shadow-lg px-2">
+                Memuat Pertanyaan Sub-Sistem...
+            </h2>
+            
+            <img id="question-image" src="" alt="Gambar Soal" class="question-img hidden">
+        </div>
+
+        <!-- Opsi Jawaban -->
+        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mt-4 md:mt-6">
+            <!-- Tombol digenerate via JS -->
+        </div>
+    </div>
+
+    <!-- SCREEN 3: END GAME -->
+    <div id="screen-end" class="hidden flex-1 flex flex-col items-center justify-center p-4 relative z-10">
+        <div class="bg-gray-900/95 p-8 md:p-12 rounded-3xl border-2 border-indigo-500/50 text-center max-w-4xl shadow-[0_0_80px_rgba(99,102,241,0.4)] w-full backdrop-blur-2xl relative overflow-hidden">
+            <div class="absolute top-10 left-10 text-4xl opacity-20 rotate-12">👾</div>
+            <div class="absolute bottom-10 right-10 text-4xl opacity-20 -rotate-12">🚀</div>
+            
+            <div class="inline-block px-5 py-2 rounded-full bg-indigo-500/20 border border-indigo-400/50 text-indigo-300 font-bold text-sm uppercase tracking-[0.2em] mb-4">
+                SIMULASI SELESAI
+            </div>
+            <h2 class="orbitron-text text-4xl md:text-6xl font-black mb-3 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">HASIL AKHIR</h2>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-12 mb-10 mt-8">
+                <div class="bg-[#0a192f] border-4 border-cyan-400 rounded-3xl p-8 w-full md:w-72 shadow-[0_0_30px_rgba(0,243,255,0.2)] relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-cyan-900 border border-cyan-400 text-cyan-300 text-xs font-bold px-3 py-1 rounded-full uppercase">Player 1</div>
+                    <div class="orbitron-text text-2xl font-bold text-cyan-100 mb-2 truncate" id="final-name-a">Siswa A</div>
+                    <div id="final-score-a" class="text-6xl md:text-7xl font-black text-cyan-400 drop-shadow-md my-4">0</div>
+                    <div class="text-cyan-500/60 text-sm mt-2 uppercase tracking-widest font-bold">TOTAL POIN</div>
+                </div>
+                
+                <div class="orbitron-text text-4xl font-black text-slate-600">VS</div>
+
+                <div class="bg-[#2b0a1a] border-4 border-pink-500 rounded-3xl p-8 w-full md:w-72 shadow-[0_0_30px_rgba(255,0,255,0.2)] relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-pink-900 border border-pink-500 text-pink-300 text-xs font-bold px-3 py-1 rounded-full uppercase">Player 2</div>
+                    <div class="orbitron-text text-2xl font-bold text-pink-100 mb-2 truncate" id="final-name-b">Siswa B</div>
+                    <div id="final-score-b" class="text-6xl md:text-7xl font-black text-pink-500 drop-shadow-md my-4">0</div>
+                    <div class="text-pink-500/60 text-sm mt-2 uppercase tracking-widest font-bold">TOTAL POIN</div>
+                </div>
+            </div>
+
+            <div class="bg-black/40 py-6 px-4 rounded-2xl border border-white/10 mb-8 backdrop-blur-md">
+                <h3 id="winner-text" class="orbitron-text text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 uppercase tracking-wider drop-shadow-lg"></h3>
+            </div>
+
+            <button onclick="returnToMenu()" class="btn-game bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-10 py-4 rounded-xl text-lg font-black hover:from-indigo-400 hover:to-purple-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] tracking-widest">
+                REBOOT SYSTEM (MAIN LAGI)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- AUDIO SYSTEM ---
+        let audioCtx;
+        let bgmInterval;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startBGM() {
+            if (!audioCtx) initAudio();
+            stopBGM(); 
+            
+            const bassNotes = [65.41, 65.41, 73.42, 65.41]; // C2, C2, D2, C2
+            let noteIdx = 0;
+
+            bgmInterval = setInterval(() => {
+                if(audioCtx.state !== 'running') return;
+                
+                const time = audioCtx.currentTime;
+                
+                const oscBass = audioCtx.createOscillator();
+                const gainBass = audioCtx.createGain();
+                oscBass.type = 'sawtooth';
+                oscBass.frequency.value = bassNotes[noteIdx % bassNotes.length];
+                
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(150, time);
+                filter.frequency.exponentialRampToValueAtTime(50, time + 0.4);
+
+                oscBass.connect(filter);
+                filter.connect(gainBass);
+                gainBass.connect(audioCtx.destination);
+                
+                gainBass.gain.setValueAtTime(0.15, time); 
+                gainBass.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+                
+                oscBass.start(time);
+                oscBass.stop(time + 0.4);
+
+                if (noteIdx % 2 !== 0) {
+                    const oscTick = audioCtx.createOscillator();
+                    const gainTick = audioCtx.createGain();
+                    oscTick.type = 'sine';
+                    oscTick.frequency.value = 1200;
+                    
+                    oscTick.connect(gainTick);
+                    gainTick.connect(audioCtx.destination);
+                    
+                    gainTick.gain.setValueAtTime(0.03, time);
+                    gainTick.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+                    
+                    oscTick.start(time);
+                    oscTick.stop(time + 0.1);
+                }
+
+                noteIdx++;
+            }, 600); 
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        function playTing() {
+            if (!audioCtx) return;
+            const time = audioCtx.currentTime;
+            
+            const freqs = [523.25, 659.25, 783.99]; 
+            freqs.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time + (i * 0.05)); 
+                
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.setValueAtTime(0.2, time + (i * 0.05));
+                gain.gain.exponentialRampToValueAtTime(0.01, time + (i * 0.05) + 0.6);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(time + (i * 0.05));
+                osc.stop(time + (i * 0.05) + 0.7);
+            });
+        }
+
+        function playTetot() {
+            if (!audioCtx) return;
+            const time = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(120, time);
+            osc.frequency.setValueAtTime(100, time + 0.1); 
+            
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.linearRampToValueAtTime(0.01, time + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.3);
+        }
+
+        function playCheer() {
+            if (!audioCtx) return;
+            const time = audioCtx.currentTime;
+
+            const bufferSize = audioCtx.sampleRate * 2.0;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 1200;
+            
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0, time);
+            noiseGain.gain.linearRampToValueAtTime(0.4, time + 0.2); 
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 2.5); 
+            
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            noise.start(time);
+            noise.stop(time + 2.5);
+        }
+
+        function speakRobot(text, delayMs = 0) {
+            setTimeout(() => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const msg = new SpeechSynthesisUtterance(text);
+                    msg.lang = 'id-ID';
+                    msg.rate = 1.05; 
+                    msg.pitch = 0.9;  
+                    window.speechSynthesis.speak(msg);
+                }
+            }, delayMs);
+        }
+
+        // ==========================================
+        // BANK SOAL KELAS 9 (Diperluas menjadi > 40 agar setiap pemain pas 20 soal)
+        // ==========================================
+        const BANK_SOAL = [
+            { q: "Disiplin ilmu yang mempelajari transformasi fakta berlambang yaitu data maupun informasi pada mesin berbasis komputasi adalah...", options: ["Sistem Komputer", "Informatika", "Elektronika", "Matematika Dasar"], answer: 1 },
+            { q: "Ilmu yang mempelajari tentang penggunaan komputer untuk mengatur dan menganalisis data yang berukuran besar adalah...", options: ["Informatika", "Biologi", "Fisika Quantum", "Ilmu Komunikasi"], answer: 0 },
+            { q: "Materi pada kelas 8 yang mempelajari tentang gerbang logika dan operasi logika dasar (AND, OR, NOT) termasuk dalam bidang...", options: ["Jaringan Komputer", "Sistem Komputer", "Berpikir Komputasional", "Dampak Sosial Informatika"], answer: 2 },
+            { q: "Media transmisi jaringan komputer yang menggunakan gelombang radio tanpa kabel disebut jaringan...", options: ["Wired", "Fiber Optic", "Coaxial", "Wireless"], answer: 3 },
+            { q: "Kabel jaringan yang memiliki inti serat kaca dan mentransmisikan data dalam bentuk cahaya dengan sangat cepat adalah...", options: ["Twisted Pair", "Coaxial", "Fiber Optic", "Kabel Telepon"], answer: 2 },
+            { q: "Perangkat lunak (aplikasi) yang dirancang khusus untuk mengolah, menganalisis, dan memvisualisasikan data dalam bentuk lembar kerja (spreadsheet) adalah...", options: ["Microsoft Excel", "Adobe Photoshop", "Microsoft Word", "CorelDraw"], answer: 0 },
+            { q: "Mampu menganalisis dan mengevaluasi informasi dari internet sebelum mempercayainya merupakan wujud dari profil pelajar Pancasila dimensi...", options: ["Berkebinekaan Global", "Mandiri", "Bernalar Kritis", "Gotong Royong"], answer: 2 },
+            { q: "Berkolaborasi dalam tim untuk merancang sebuah proyek aplikasi dan membagi tugas secara adil menunjukkan penerapan dimensi...", options: ["Mandiri", "Gotong Royong", "Beriman dan Bertaqwa", "Kreatif"], answer: 1 },
+            { q: "Proses memecah masalah besar dan kompleks menjadi bagian-bagian kecil yang lebih mudah diselesaikan dalam Berpikir Komputasional disebut...", options: ["Abstraksi", "Dekomposisi", "Pengenalan Pola", "Algoritma"], answer: 1 },
+            { q: "Mencari kesamaan bentuk atau karakteristik dari berbagai masalah untuk menemukan solusi yang tepat disebut...", options: ["Pengenalan Pola", "Dekomposisi", "Algoritma", "Abstraksi"], answer: 0 },
+            { q: "Menyusun instruksi atau langkah-langkah terstruktur dan logis untuk menyelesaikan suatu masalah disebut dengan...", options: ["Dekomposisi", "Abstraksi", "Pengenalan Pola", "Perancangan Algoritma"], answer: 3 },
+            { q: "Manakah dari kegiatan berikut yang merupakan contoh penerapan Dekomposisi di kehidupan sehari-hari?", options: ["Membuat jadwal harian", "Mengingat wajah teman", "Merakit sepeda dengan memisahkannya menjadi bagian stang, roda, dan rangka", "Menulis puisi"], answer: 2 },
+            { q: "Struktur data yang terdiri dari simpul (node) yang saling terhubung oleh garis (edge) dan sering digunakan untuk memodelkan rute pada peta disebut...", options: ["Array", "Stack", "Graf (Graph)", "Queue"], answer: 2 },
+            { q: "Pada struktur Pohon (Tree) dalam ilmu komputer, simpul paling atas yang tidak memiliki induk (parent) disebut...", options: ["Leaf (Daun)", "Edge (Garis)", "Child (Anak)", "Root (Akar)"], answer: 3 },
+            { q: "Diberikan langkah membuat kopi: 1. Tuang air panas. 2. Masukkan kopi dan gula. 3. Aduk rata. 4. Siapkan gelas. Urutan algoritma yang benar adalah...", options: ["4-2-1-3", "1-2-3-4", "4-1-2-3", "2-1-4-3"], answer: 0 },
+            { q: "Langkah mencetak dokumen: 1. Klik Print. 2. Buka dokumen. 3. Pilih mesin printer. 4. Pastikan printer menyala. Urutan logis yang benar adalah...", options: ["1-2-3-4", "2-4-3-1", "4-2-3-1", "4-3-2-1"], answer: 2 },
+            { q: "Jika A bernilai Benar (True) dan B bernilai Salah (False), maka hasil dari operasi logika (A AND B) adalah...", options: ["True (Benar)", "False (Salah)", "Error", "Tidak dapat ditentukan"], answer: 1 },
+            { q: "Hasil dari perhitungan ekspresi aritmatika 10 + 4 * 2 berdasarkan aturan presedensi (prioritas) matematika di komputer adalah...", options: ["28", "24", "18", "16"], answer: 2 },
+            { q: "Fitur pada Microsoft Word yang digunakan untuk membuat surat massal dengan mengambil sumber data dari tabel Microsoft Excel disebut...", options: ["Mail Merge", "Track Changes", "Table of Contents", "SmartArt"], answer: 0 },
+            { q: "Untuk menempelkan tabel dari Excel ke PowerPoint agar datanya otomatis berubah jika file Excel aslinya diubah, kita harus memilih opsi paste...", options: ["Keep Text Only", "Picture", "Keep Source Formatting & Link Data", "Merge Formatting"], answer: 2 },
+            { q: "Teknologi OLE dalam Microsoft Office merupakan singkatan dari...", options: ["Online Learning Environment", "Object Linking and Embedding", "Offline Local Exchange", "Office Layout Engine"], answer: 1 },
+            { q: "Saat membuat daftar isi otomatis (Table of Contents) di Microsoft Word, fitur yang harus diatur terlebih dahulu pada judul/subjudul adalah...", options: ["Page Number", "Header & Footer", "Heading (Styles)", "Watermark"], answer: 2 },
+            { q: "Jika kamu ingin mengirimkan grafik dari Excel melalui Email Outlook secara langsung, fitur yang tepat digunakan adalah...", options: ["Share / Send to Mail Recipient", "Save As PDF", "Print Preview", "Macro"], answer: 0 },
+            { q: "Perangkat lunak dari paket Office yang paling tepat digunakan untuk merancang slide presentasi yang interaktif dengan animasi adalah...", options: ["Microsoft Excel", "Microsoft Word", "Microsoft Access", "Microsoft PowerPoint"], answer: 3 },
+            { q: "Pernyataan yang BENAR mengenai fungsi utama aplikasi Microsoft Excel adalah...", options: ["Untuk mengedit video pendek", "Untuk membuat dan mendesain brosur", "Untuk mengolah data numerik, formula, dan membuat grafik", "Untuk mengelola database server besar"], answer: 2 },
+            { q: "Sebuah situs web yang berisi konten artikel atau jurnal pribadi yang diurutkan secara kronologis terbalik (postingan terbaru di atas) dikenal dengan istilah...", options: ["Vlog", "Blog", "E-commerce", "Search Engine"], answer: 1 },
+            { q: "Singkatan dari Video Blog, yaitu blog yang konten utamanya berupa video dokumentasi dan sering diunggah di platform seperti YouTube, disebut...", options: ["Podcast", "Vlog", "Webinar", "Streaming"], answer: 1 },
+            { q: "Manakah di bawah ini yang merupakan contoh CMS (Content Management System) gratis untuk membuat sebuah Blog?", options: ["Adobe Premiere", "Blogger / WordPress", "Microsoft Excel", "Notepad"], answer: 1 },
+            { q: "Langkah pertama yang sangat penting dilakukan sebelum mempublikasikan sebuah konten video (Vlog) ke publik agar hasilnya maksimal adalah...", options: ["Melakukan proses editing video", "Meminta like dan subscribe", "Menghapus akun YouTube", "Menjual kamera"], answer: 0 },
+            { q: "Urutan membuat postingan blog baru di platform Blogger yang benar: 1. Klik New Post. 2. Ketik Konten. 3. Login ke Blogger. 4. Klik Publish. Urutannya adalah...", options: ["3-1-2-4", "1-2-3-4", "3-2-1-4", "4-3-2-1"], answer: 0 },
+            { q: "Fungsi (formula) pada Excel yang digunakan untuk menghasilkan suatu nilai jika kondisi benar dan nilai lain jika kondisi salah adalah fungsi...", options: ["SUM", "AVERAGE", "IF", "VLOOKUP"], answer: 2 },
+            { q: "Jika sel A1 berisi angka 80, maka formula `=IF(A1>=75, \"LULUS\", \"GAGAL\")` akan menghasilkan teks...", options: ["GAGAL", "LULUS", "ERROR", "TRUE"], answer: 1 },
+            { q: "Formula `=AND(TRUE, FALSE)` pada program Microsoft Excel akan menghasilkan keluaran nilai...", options: ["TRUE", "FALSE", "1", "0"], answer: 1 },
+            { q: "Siswa kelas 9 merancang aplikasi pendeteksi hoaks. Dimensi Profil Pelajar Pancasila yang paling tercermin dari kegiatan ini adalah...", options: ["Kreatif dan Bernalar Kritis", "Mandiri saja", "Gotong royong dan Berkebinekaan Global", "Beriman dan bertaqwa"], answer: 0 },
+            { q: "Mempelajari sejarah perkembangan komputer dari generasi pertama hingga sekarang termasuk dalam elemen informatika bidang...", options: ["Dampak Sosial Informatika", "Sistem Komputer", "Praktik Lintas Bidang", "Jaringan Komputer"], answer: 1 },
+            { q: "Jika kita ingin mencari nilai rata-rata dari sekelompok data nilai siswa di Microsoft Excel, formula yang digunakan adalah...", options: ["=MIN()", "=MAX()", "=SUM()", "=AVERAGE()"], answer: 3 },
+            { q: "Proses mengidentifikasi informasi penting yang relevan dan mengabaikan informasi yang tidak penting dalam Berpikir Komputasional merupakan inti dari pilar...", options: ["Algoritma", "Pengenalan Pola", "Abstraksi", "Dekomposisi"], answer: 2 },
+            { q: "Sebuah graf yang ujung-ujungnya (edges) memiliki arah panah yang menunjukkan aliran perjalanan data disebut...", options: ["Undirected Graph", "Directed Graph (Graf Berarah)", "Tree", "Binary Search"], answer: 1 },
+            { q: "Komponen komputer yang berfungsi sebagai tempat penyimpanan data secara permanen meskipun komputer dimatikan adalah...", options: ["RAM (Random Access Memory)", "Processor (CPU)", "Harddisk / SSD", "VGA Card"], answer: 2 },
+            { q: "Pengguna komputer atau manusia yang mengoperasikan sistem komputer sering disebut dengan istilah...", options: ["Hardware", "Software", "Brainware", "Malware"], answer: 2 },
+            { q: "Jaringan komputer lokal yang mencakup area terbatas seperti dalam satu ruangan laboratorium sekolah disebut...", options: ["WAN (Wide Area Network)", "LAN (Local Area Network)", "MAN (Metropolitan Area Network)", "Internet"], answer: 1 },
+            { q: "Kombinasi tombol keyboard (shortcut) yang digunakan untuk melakukan perintah Copy dan Paste secara berurutan adalah...", options: ["Ctrl + C dan Ctrl + V", "Ctrl + X dan Ctrl + P", "Ctrl + S dan Ctrl + O", "Ctrl + A dan Ctrl + Z"], answer: 0 }
+        ];
+
+        const TOTAL_QUESTIONS_PER_GAME = 40; // 20 soal x 2 pemain = 40 total
+        let gameQuestions = [];
+        let currentQIndex = 0;
+        let turnIndex = 0; 
+        let isWaiting = false; 
+        let glowInterval;
+        
+        let timerInterval;
+        let timeLeft = 60;
+
+        let players = [
+            { id: 'a', name: 'Siswa A', score: 0, answered: 0 },
+            { id: 'b', name: 'Siswa B', score: 0, answered: 0 }
+        ];
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initApp() {
+            initAudio();
+            document.getElementById('screen-intro').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+            
+            speakRobot("Selamat datang siswa siswi hebat di pelajaran Informatika kelas 9.", 300);
+            
+            setTimeout(() => { playCheer(); }, 800);
+        }
+
+        function startGame() {
+            initAudio();
+
+            players[0].name = document.getElementById('nameA').value || "Siswa A";
+            players[1].name = document.getElementById('nameB').value || "Siswa B";
+            players[0].score = 0;
+            players[1].score = 0;
+            players[0].answered = 0;
+            players[1].answered = 0;
+            
+            turnIndex = 0;
+            currentQIndex = 0;
+
+            document.getElementById('display-name-a').innerText = players[0].name;
+            document.getElementById('display-name-b').innerText = players[1].name;
+            updateScoreUI();
+
+            // Mengacak bank soal (Tingkat kesulitan / urutan soal diacak)
+            let shuffledBank = shuffleArray(BANK_SOAL);
+            let limit = Math.min(TOTAL_QUESTIONS_PER_GAME, shuffledBank.length);
+            gameQuestions = shuffledBank.slice(0, limit);
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-end').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            loadNextQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            
+            const timeDisplay = document.getElementById('time-display');
+            const timerCircle = document.getElementById('timer-circle');
+            
+            timeDisplay.innerText = timeLeft;
+            timeDisplay.parentElement.classList.remove('timer-warning');
+            timerCircle.style.strokeDashoffset = '0'; // Full circle
+
+            timerInterval = setInterval(() => {
+                if(isWaiting) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                timeDisplay.innerText = timeLeft;
+                
+                // Kalkulasi stroke offset untuk animasi lingkaran
+                // radius 40% dari 100x100 container -> C = 2 * PI * r
+                // Approx circumference = 251
+                const offset = 251 - (251 * (timeLeft / 60));
+                timerCircle.style.strokeDashoffset = offset;
+
+                if(timeLeft <= 10) {
+                    timeDisplay.parentElement.classList.add('timer-warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            if(isWaiting) return;
+            isWaiting = true;
+            stopBGM();
+            if (glowInterval) clearInterval(glowInterval);
+
+            // Kunci semua tombol
+            const allButtons = document.getElementById('options-container').querySelectorAll('button');
+            allButtons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('option-glow-a', 'option-glow-b');
+            });
+
+            players[turnIndex].answered++;
+
+            // Jika tidak dijawab, dianggap salah
+            playTetot();
+            speakRobot("Waktu habis. Surve membuktikan Jawaban salah.", 100);
+
+            updateScoreUI();
+
+            setTimeout(() => {
+                currentQIndex++;
+                turnIndex = 1 - turnIndex; 
+                loadNextQuestion();
+            }, 3000); // Jeda sedikit lebih lama untuk membaca situasi
+        }
+
+        function loadNextQuestion() {
+            if (currentQIndex >= gameQuestions.length) {
+                showEndScreen();
+                return;
+            }
+
+            isWaiting = false;
+            updateScoreUI();
+            
+            const indA = document.getElementById('indicator-a');
+            const indB = document.getElementById('indicator-b');
+            const pointer = document.getElementById('turn-pointer');
+            
+            if (turnIndex === 0) {
+                indA.className = "bg-[#0a192f] border-4 border-cyan-400 rounded-2xl p-3 md:p-5 text-center flex-1 transition-all duration-300 relative overflow-hidden turn-indicator-active shadow-[0_0_30px_rgba(0,243,255,0.4)]";
+                indB.className = "bg-gray-900/40 border-2 border-indigo-900 rounded-2xl p-3 md:p-5 text-center flex-1 transition-all duration-300 relative overflow-hidden turn-indicator-inactive shadow-none";
+                pointer.innerText = "👈";
+            } else {
+                indB.className = "bg-[#2b0a1a] border-4 border-pink-500 rounded-2xl p-3 md:p-5 text-center flex-1 transition-all duration-300 relative overflow-hidden turn-indicator-active shadow-[0_0_30px_rgba(255,0,255,0.4)]";
+                indA.className = "bg-gray-900/40 border-2 border-indigo-900 rounded-2xl p-3 md:p-5 text-center flex-1 transition-all duration-300 relative overflow-hidden turn-indicator-inactive shadow-none";
+                pointer.innerText = "👉";
+            }
+
+            const qData = gameQuestions[currentQIndex];
+            
+            document.getElementById('question-text').innerText = qData.q;
+
+            const qImgElement = document.getElementById('question-image');
+            if (qData.qImage) {
+                qImgElement.src = qData.qImage;
+                qImgElement.classList.remove('hidden');
+            } else {
+                qImgElement.src = "";
+                qImgElement.classList.add('hidden');
+            }
+
+            let optionsObj = qData.options.map((opt, i) => {
+                return { 
+                    text: opt, 
+                    isCorrect: i === qData.answer,
+                    image: (qData.optImages && qData.optImages[i]) ? qData.optImages[i] : null
+                };
+            });
+            
+            // Mengacak jawaban
+            let shuffledOptions = shuffleArray(optionsObj);
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+
+            const letters = ['A', 'B', 'C', 'D'];
+            shuffledOptions.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn p-3 md:p-4 rounded-2xl text-left w-full h-full min-h-[75px] md:min-h-[90px]";
+                
+                let btnHTML = `<span class="option-letter relative z-10 flex-shrink-0">${letters[index]}</span>`;
+                btnHTML += `<div class="flex flex-col flex-1 relative z-10 overflow-hidden pr-2">`;
+                
+                if (opt.image) {
+                    btnHTML += `<img src="${opt.image}" class="option-img" alt="Pilihan ${letters[index]}">`;
+                }
+                
+                if (opt.text && opt.text.trim() !== "") {
+                    btnHTML += `<span class="font-semibold text-sm md:text-base leading-snug">${opt.text}</span>`;
+                }
+                
+                btnHTML += `</div>`;
+                
+                btn.innerHTML = btnHTML;
+                btn.onclick = () => selectOption(opt.isCorrect, btn);
+                container.appendChild(btn);
+            });
+
+            startBGM();
+            startGlowAnimation();
+            startTimer(); // Mulai timer 60 detik
+        }
+
+        function startGlowAnimation() {
+            if (glowInterval) clearInterval(glowInterval);
+            
+            const buttons = document.getElementById('options-container').querySelectorAll('button');
+            const order = [0, 1, 3, 2]; 
+            let glowIdx = 0;
+            
+            const glowClass = turnIndex === 0 ? 'option-glow-a' : 'option-glow-b';
+
+            glowInterval = setInterval(() => {
+                if (isWaiting) return;
+                
+                buttons.forEach(b => b.classList.remove('option-glow-a', 'option-glow-b'));
+                
+                if (buttons[order[glowIdx]]) {
+                    buttons[order[glowIdx]].classList.add(glowClass);
+                }
+                
+                glowIdx = (glowIdx + 1) % 4;
+            }, 350); 
+        }
+
+        function selectOption(isCorrect, btnElement) {
+            if (isWaiting) return;
+            isWaiting = true;
+
+            clearInterval(timerInterval); // Hentikan timer
+            stopBGM(); 
+            if (glowInterval) clearInterval(glowInterval);
+            
+            const allButtons = document.getElementById('options-container').querySelectorAll('button');
+            allButtons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('option-glow-a', 'option-glow-b');
+            });
+
+            players[turnIndex].answered++;
+
+            if (isCorrect) {
+                btnElement.classList.add('correct-pop');
+                players[turnIndex].score += 5; // Nilai dikali 5
+                playTing();
+                speakRobot("Surve membuktikan, jawaban Anda Benar !", 100);
+            } else {
+                btnElement.classList.add('wrong-shake');
+                playTetot();
+                speakRobot("Surve membuktikan, Jawaban salah.", 100);
+            }
+
+            updateScoreUI();
+            
+            setTimeout(() => {
+                currentQIndex++;
+                turnIndex = 1 - turnIndex; 
+                loadNextQuestion();
+            }, 3000); // Beri waktu suara selesai
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-a').innerText = players[0].score;
+            document.getElementById('progress-a').innerText = players[0].answered + (turnIndex === 0 && !isWaiting ? 1 : 0);
+            
+            document.getElementById('score-b').innerText = players[1].score;
+            document.getElementById('progress-b').innerText = players[1].answered + (turnIndex === 1 && !isWaiting ? 1 : 0);
+        }
+
+        function showEndScreen() {
+            clearInterval(timerInterval);
+            stopBGM();
+            playCheer(); 
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-end').classList.remove('hidden');
+
+            document.getElementById('final-name-a').innerText = players[0].name;
+            document.getElementById('final-score-a').innerText = players[0].score;
+            document.getElementById('final-name-b').innerText = players[1].name;
+            document.getElementById('final-score-b').innerText = players[1].score;
+
+            const winnerText = document.getElementById('winner-text');
+            if (players[0].score > players[1].score) {
+                winnerText.innerText = `🏆 ${players[0].name} WINS 🏆`;
+                speakRobot(`Luar biasa. Pemenangnya adalah ${players[0].name}.`, 600);
+            } else if (players[1].score > players[0].score) {
+                winnerText.innerText = `🏆 ${players[1].name} WINS 🏆`;
+                speakRobot(`Luar biasa. Pemenangnya adalah ${players[1].name}.`, 600);
+            } else {
+                winnerText.innerText = "🤝 DRAW 🤝";
+                speakRobot("Skor seimbang, permainan seri.", 600);
+            }
+        }
+
+        function returnToMenu() {
+            stopBGM();
+            document.getElementById('screen-end').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
